@@ -1,0 +1,17 @@
+{
+  "name": "netlify-notion-wordcount",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start-netlify": "netlify dev",
+    "test-function": "netlify functions:invoke notionWordCount --no-identity --port 8888"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@notionhq/client": "^3.0.1",
+    "dotenv": "^16.5.0"
+  }
+}
