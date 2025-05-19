@@ -55,7 +55,7 @@ exports.handler = async function (event, context) {
 							//console.warn(`Warning: Block paragraph rich_text is empty or invalid: ${JSON.stringify(block.paragraph.rich_text)}`);
 						}
 					} else {
-						//console.log(`Skipping non-paragraph block of type: ${block.type}`);
+						console.log(`Skipping non-paragraph block of type: ${block.type}`);
 					}
 				}
 
@@ -63,15 +63,20 @@ exports.handler = async function (event, context) {
 				if (wordCount === 0) console.warn(`Warning: Page ${page.id} has a word count of 0.`);
 				
 
+				// Ensure 'Page Count' property exists and has a valid number before accessing it
+				const currentPageCount = page.properties['Word Count']?.number;
+				if (currentPageCount === undefined) {
+					console.warn(`Warning: 'Page Count' property is missing or invalid for page ${page.id}. Defaulting to 0.`);
+				}
+
 				// Update the page if the word count has changed
-				const currentPageCount = page.properties['Page Count'].number;
 				if (currentPageCount !== wordCount) {
 					console.log(`Updating page ${page.id}: Current count = ${currentPageCount}, New count = ${wordCount}`);
 					await notion.pages.update({
 						page_id: page.id,
 						properties: {
-							'Page Count': { number: wordCount },
-							'Page Count Updated': { date: { start: new Date().toISOString() } },
+							'Word Count': { number: wordCount },
+							'Word Count Updated': { date: { start: new Date().toISOString() } },
 						},
 					});
 					console.log(`Page ${page.id} updated successfully.`);
