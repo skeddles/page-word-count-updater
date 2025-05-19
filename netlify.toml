@@ -1,0 +1,7 @@
+[build]
+  functions = "netlify/functions"
+
+[schedule]
+  [[functions]]
+    function = "notionWordCount"
+    cron = "0 * * * *" # Runs hourly

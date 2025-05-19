@@ -5,6 +5,11 @@ const { Client } = require('@notionhq/client');
 // Initialize the Notion client
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
+// schedule the function to run every hour
+exports.config = {
+    schedule: "@hourly"
+}
+
 exports.handler = async function (event, context) {
 	try {
 		const databaseId = process.env.NOTION_DATABASE_ID;
@@ -90,3 +95,5 @@ exports.handler = async function (event, context) {
 		};
 	}
 };
+
+
