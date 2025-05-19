@@ -5,11 +5,6 @@ const { Client } = require('@notionhq/client');
 // Initialize the Notion client
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
-// cron schedule the function to run every minute
-exports.config = {
-    schedule: '*/1 * * * *',
-}
-
 exports.handler = async function (event, context) {
 	try {
 		const databaseId = process.env.NOTION_DATABASE_ID;

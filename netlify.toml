@@ -1,2 +1,2 @@
 [functions."notionWordCount"]
-schedule = "*/1 * * * *"
+schedule = "0 * * * *"
