@@ -1,6 +1,9 @@
 require('dotenv').config();
-
 const { Client } = require('@notionhq/client');
+
+
+const COUNT_FIELD_NAME = 'Word Count';
+const COUNT_UPDATED_DATE_FIELD_NAME = 'Word Count Updated';
 
 // Initialize the Notion client
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -16,19 +19,23 @@ exports.handler = async function (event, context) {
 		const pages = response.results;
 
 		for (const page of pages) {
-			console.log(`Processing page: ${page.id}`);
+			const pageName = page.properties['Name']?.title[0]?.text?.content || ' Page';
+			console.log('\n\n', '='.repeat(50));
+			console.log(`Processing page: ${pageName}`);
 			const lastEditedTime = new Date(page.last_edited_time);
-			const pageCountUpdatedField = page.properties['Page Count Updated']?.date?.start;
-			const pageCountUpdated = pageCountUpdatedField ? new Date(pageCountUpdatedField) : null;
+			const pageCountUpdatedField = page.properties[COUNT_UPDATED_DATE_FIELD_NAME]?.date?.start;
+			const pageCountUpdated = pageCountUpdatedField ? new Date(pageCountUpdatedField) : new Date(0);
 
-			if (lastEditedTime > (pageCountUpdated || new Date(0))) {
-				console.log(`Page ${page.id} needs an update. Fetching blocks...`);
+			if (lastEditedTime > pageCountUpdated) {
+				console.log(`Page ${pageName} needs an update. Fetching blocks...`);
+				console.log(`this is why it needs an update: ${lastEditedTime} > ${pageCountUpdated || new Date(0)}`);
+
 				// Fetch all blocks of the page
 				const blocks = await notion.blocks.children.list({ block_id: page.id });
-				console.log(`Fetched ${blocks.results.length} blocks for page ${page.id}.`);
+				console.log(`Fetched ${blocks.results.length} blocks for page ${pageName}.`);
 
 				// Inspecting blocks for debugging
-				//console.log(`Inspecting blocks for page ${page.id}:`, JSON.stringify(blocks.results, null, 2));
+				//console.log(`Inspecting blocks for page ${pageName}:`, JSON.stringify(blocks.results, null, 2));
 
 				// Count words in all blocks
 				let wordCount = 0;
@@ -59,7 +66,7 @@ exports.handler = async function (event, context) {
 				
 
 				// Ensure 'Page Count' property exists and has a valid number before accessing it
-				const currentPageCount = page.properties['Word Count']?.number;
+				const currentPageCount = page.properties[COUNT_FIELD_NAME]?.number;
 				if (currentPageCount === undefined) {
 					console.warn(`Warning: 'Page Count' property is missing or invalid for page ${page.id}. Defaulting to 0.`);
 				}
@@ -70,16 +77,16 @@ exports.handler = async function (event, context) {
 					await notion.pages.update({
 						page_id: page.id,
 						properties: {
-							'Word Count': { number: wordCount },
-							'Word Count Updated': { date: { start: new Date().toISOString() } },
+							[COUNT_FIELD_NAME]: { number: wordCount },
+							[COUNT_UPDATED_DATE_FIELD_NAME]: { date: { start: new Date().toISOString() } },
 						},
 					});
-					console.log(`Page ${page.id} updated successfully.`);
+					console.log(`Page ${pageName} updated successfully.`);
 				} else {
-					console.log(`Page ${page.id} already has the correct word count.`);
+					console.log(`Page ${pageName} already has the correct word count.`);
 				}
 			} else {
-				console.log(`Page ${page.id} does not need an update.`);
+				console.log(`Page ${pageName} does not need an update.`);
 			}
 		}
 
