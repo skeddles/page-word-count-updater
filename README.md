@@ -15,3 +15,11 @@ This is a Netlify serverless function that updates the word count of all the pag
 - ```NOTION_DATABASE_ID=<paste your Notion database ID here>```
 
 7. In Netflify click `Add new project` and select `Import an existing project`.
+
+## Development
+
+1. Clone the repository to your local machine.
+2. Install the dependencies by running `npm install`.
+3. Install the Netlify CLI by running `npm install -g netlify-cli`.
+4. Run netlify with `npm run start-netlify`
+5. Run the function with `npm run test-function`
